@@ -6,32 +6,34 @@ import torch.nn.functional as F
 
 
 class Text_Encoder(nn.Module):
-    def __init__(self, max_words, input_dim=512, hidden_dim=1024, lstm_layers=1, bidirectional=True):
+    def __init__(self, batch_size, max_words, embedded_dim=512, hidden_dim=1024, num_layers=1, bidirectional=True):
 
+        self.batch_size = batch_size
         self.max_words = max_words
-        self.input_dim = input_dim
+        self.embedded_dim = embedded_dim
         self.hidden_dim = hidden_dim
-        self.lstm_layers = lstm_layers
+        self.num_layers = num_layers
         self.bidirectional = bidirectional
         self.D = 1
         if self.bidirectional:
             self.D = 2
 
         self.embedding = nn.Embedding(self.max_words, self.input_dim, padding_idx=0)
-        self.BiLSTM = nn.LSTM(input_size=self.input_dim,
-                              hidden_Size=self.hiddn_dim,
-                              num_layers=self.lstm_layers,
-                              bidirectional=self.bidirectional,
-                              batch_first=True)
+        self.LSTM = nn.LSTM(input_size=self.embedded_dim,
+                            hidden_Size=self.hidden_dim,
+                            num_layers=self.num_layers,
+                            bidirectional=self.bidirectional,
+                            batch_first=True)
 
-    def forward(self, x):
-        h = torch.zeros((self.lstm_layers, x.size(0), self.hidden_dim * self.D))
-        c = torch.zeros((self.lstm_layers, x.size(0), self.hidden_dim * self.D))
+    def forward(self, x):  # input : (seq_length, batch_size, max_words)
+
+        h = torch.zeros((self.num_layers*self.D, self.batch_size, self.hidden_dim))
+        c = torch.zeros((self.num_layers*self.D, self.batch_size, self.hidden_dim))
         torch.nn.init.xavier_normal_(h)
         torch.nn.init.xavier_normal_(c)
 
-        x = self.embedding(x)
-        x, (h, c) = self.BILSTM(x, (h, c))
+        x = self.embedding(x)  # (seq_length, batch_size, input_dim)
+        x, (h, c) = self.LSTM(x, (h, c))  # (seq_length, batch_size, D*hidden_dim), ((D*num_layers, batch, hidden_dim), (D*num_layers, batch, hidden_dim))
 
-        return x
+        return h
 
