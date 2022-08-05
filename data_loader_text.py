@@ -1,15 +1,16 @@
-import json, pandas as pd, numpy as np
-import os, random
-from torchtext.data import Field, BucketIterator
+import os, json, pandas as pd, numpy as np
+from vocab import Vocab
 
 
 class data_loader_text:
-    def __init__(self):
-        self.dataset_frame = None
+    def __init__(self, tokenizer, special_tokens):
+        self.special_tokens = special_tokens  # dictionary of special tokens <eos>, <sos>, <unk>, <pad>...
+        self.tokenizer = tokenizer  # tokenizer function split sentence to small tokens, (한국어 이용한다면 tokenizer 교체)
+        self.dataset_frame = None  # dataset
         self.train_frame = None
         self.valid_frame = None
         self.eval_frame = None
-        print("DataLoader_text initialized")
+        self.vocab = None  # Vocab class
 
     def get_data(self, dataset_loc):
         filename_list = os.listdir(dataset_loc)
@@ -40,6 +41,8 @@ class data_loader_text:
         return
 
     def split_dataset(self, train_ratio=0.6, valid_ratio=0.2):
+        if self.dataset_frame is None:
+            raise Exception("dataset not found")
         dataset_length = len(self.dataset_frame)
         valid_split_idx = int(dataset_length*train_ratio)
         eval_split_idx = int(dataset_length*(train_ratio+valid_ratio))
@@ -53,10 +56,16 @@ class data_loader_text:
         print(self.train_frame, self.valid_frame, self.eval_frame)
         return
 
-    def build_vocab(self):
-        pass
+    def make_vocab(self):
+        if self.train_frame is None:
+            raise Exception("train dataset not found")
+        vocab = Vocab(1, 50000, self.tokenizer, self.special_tokens)
+        vocab.build_vocab(self.train_frame)
 
-    def tokenization(self, tokenizer, init_token, eos_token, unk_token):
+        self.vocab = vocab
+        return
+
+    def tokenization(self):
         pass
 
     def token2index(self):
