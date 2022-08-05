@@ -1,57 +1,51 @@
-import json, os, pandas as pd
-
-import spacy, torchtext
-from t2i import T2I
-
-
-def get_text_data(filename):
-    with open(filename, 'r') as f:
-        dataset = json.load(f)
-
-    dataset_2darr = []
-
-    for data in dataset:
-        data_1darr = []
-        history_num = len(data["text_history"])
-        for i in range(history_num):
-            data_1darr.append(data["text_history"][history_num-1-i])
-        data_1darr.append(data["text"])
-        data_1darr.append(data["text_next"])
-
-        dataset_2darr.append(data_1darr)
-
-    dataset_frame = pd.DataFrame(dataset_2darr, columns=['history-10', 'history-9', 'history-8', 'history-7',
-                                                         'history-6', 'history-5', 'history-4', 'history-3',
-                                                         'history-2', 'history-1', 'current', 'next'])
-    print(dataset_frame.shape)
-    return dataset_frame
+import json, pandas as pd
+import os
+from torchtext.data import Field, BucketIterator
 
 
-def tokenization(dataset):
-    nlp = spacy.load("en_core_web_sm")
-    print(nlp.vocab)
-    tokenized_1darr = []
+class DataLoader_text:
+    def __init__(self, tokenizer, init_token, eos_token, unk_token):
+        self.tokenizer = tokenizer
+        self.init_token = init_token
+        self.eos_token = eos_token
+        self.unk_token = unk_token
+        print("DataLoader_text initialized")
 
-    print(dataset.shape[0], dataset.shape[1])
-    tokenized_2darr = []
+    def get_data(self, dataset_loc):
+        filename_list = os.listdir(dataset_loc)
+        print(filename_list)
+        file_list = [file for file in filename_list if file.endswith(".json")]
 
-    for i in range(dataset.shape[0]):
-        tokenized_1darr = []
-        for j in range(dataset.shape[1]):
-            tokenized_1darr.append([token.text for token in nlp(dataset.iloc[i, j])])
-        tokenized_2darr.append(tokenized_1darr)
+        datasets = []
+        for file in file_list:
+            filename = dataset_loc + "//" + file
+            with open(filename, 'r') as f:
+                datasets.append(json.load(f))
 
-    tokenized_frame = pd.DataFrame(tokenized_2darr, columns=['history-10', 'history-9', 'history-8', 'history-7',
+        dataset_2darr = []
+        for dataset in datasets:
+            for data in dataset:
+                data_1darr = []
+                history_num = len(data["text_history"])
+                for i in range(history_num):
+                    data_1darr.append(data["text_history"][history_num - 1 - i])
+                data_1darr.append(data["text"])
+                data_1darr.append(data["text_next"])
+                dataset_2darr.append(data_1darr)
+
+        dataset_frame = pd.DataFrame(dataset_2darr, columns=['history-10', 'history-9', 'history-8', 'history-7',
                                                              'history-6', 'history-5', 'history-4', 'history-3',
                                                              'history-2', 'history-1', 'current', 'next'])
-    return tokenized_frame
+        return dataset_frame
 
+    def build_vocab(self):
+        pass
 
+    def tokenization(self):
+        pass
 
-def token2index(dataset):
+    def token2index(self):
+        pass
 
-    pass
-
-
-if __name__ == "__main__":
-    print(tokenization(get_text_data("MovieChat//data//12 Years a Slave.json")))
+    def dataloader(self):
+        pass
