@@ -6,7 +6,7 @@ import torch.nn.functional as F
 
 
 class Text_Encoder(nn.Module):
-    def __init__(self, batch_size, max_words, embedded_dim=512, hidden_dim=1024, output_dim=1024, bidirectional=True, num_layers=2):
+    def __init__(self, batch_size, max_words, embedded_dim=512, hidden_dim=1024, output_dim=1024, bidirectional=True, num_layers=1):
 
         super(Text_Encoder, self).__init__()
         self.batch_size = batch_size
@@ -25,30 +25,28 @@ class Text_Encoder(nn.Module):
                             hidden_size=self.hidden_dim,
                             num_layers=self.num_layers,
                             bidirectional=self.bidirectional,
-                            batch_first=False)
+                            batch_first=True)
         self.tanh = nn.Tanh()
         self.linear = nn.Linear(self.D*self.hidden_dim*self.num_layers, self.output_dim)
 
-    def forward(self, x):  # input : (seq_length, batch_size), number range : 0~(max_words-1)
+    def forward(self, x):  # input : (batch_size, seq_length), number range : 0~(max_words-1)
 
         h = torch.zeros((self.num_layers*self.D, self.batch_size, self.hidden_dim))
         c = torch.zeros((self.num_layers*self.D, self.batch_size, self.hidden_dim))
         torch.nn.init.xavier_normal_(h)
         torch.nn.init.xavier_normal_(c)
 
-        out = self.embedding(x)  # (seq_length, batch_size, input_dim)
+        out = self.embedding(x)  # (batch_size, seq_length, input_dim)
 
-        out, (h, c) = self.LSTM(out, (h, c))  # (seq_length, batch_size, D*hidden_dim), ((D*num_layers, batch, hidden_dim), (D*num_layers, batch, hidden_dim))
+        out, (h, c) = self.LSTM(out, (h, c))  # (batch_size, seq_length, D*hidden_dim), ((D*num_layers, batch, hidden_dim), (D*num_layers, batch, hidden_dim))
 
         h = torch.transpose(h, 0, 1)  # (batch, D*num_layers, hidden_dim)
         h = torch.reshape(h, (self.batch_size, -1))  # (batch, D*num_layers*hidden_dim)
         h = self.linear(h)  # (batch, output_dim)
         h = self.tanh(h)
-        h = torch.transpose(h, 0, 1)  # (output_dim, batch)
         return h
 
         """
-        self.linear = nn.Linear(self.D*self.hidden_dim*x.shape[0], self.output_dim) 
         out = torch.transpose(out, 0, 1)
         out = torch.reshape(out, (self.batch_size, -1))
         out = self.linear(out)
@@ -56,5 +54,3 @@ class Text_Encoder(nn.Module):
         out = torch.transpose(out, 0, 1)
         return out
         """
-
-
