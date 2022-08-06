@@ -1,6 +1,8 @@
 import spacy
 
+class tokenizer_spacy:
+    def __init__(self):
+        self.nlp = spacy.load("en_core_web_sm")
 
-def tokenizer_spacy(sentence):
-    nlp = spacy.load("en_core_web_sm")
-    return [token.text for token in nlp(sentence)]
+    def tokenize(self, sentence):
+        return [token.text for token in self.nlp(sentence)]

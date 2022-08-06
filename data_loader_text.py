@@ -1,6 +1,8 @@
 import os, json, pandas as pd, numpy as np
 from vocab import Vocab
 
+from tqdm import tqdm
+
 
 class data_loader_text:
     def __init__(self, tokenizer, special_tokens):
@@ -18,7 +20,8 @@ class data_loader_text:
         file_list = [file for file in filename_list if file.endswith(".json")]
 
         datasets = []
-        for file in file_list:
+        print("Datasets loading...")
+        for file in tqdm(file_list):
             filename = dataset_loc + "//" + file
             with open(filename, 'r') as f:
                 datasets.append(json.load(f))
@@ -53,7 +56,6 @@ class data_loader_text:
         self.train_frame = self.dataset_frame.iloc[train_idx]
         self.valid_frame = self.dataset_frame.iloc[valid_idx]
         self.eval_frame = self.dataset_frame.iloc[valid_idx]
-        print(self.train_frame, self.valid_frame, self.eval_frame)
         return
 
     def make_vocab(self):
