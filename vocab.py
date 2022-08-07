@@ -9,6 +9,7 @@ class Vocab:
         self.special_tokens = special_tokens
         self.itos = special_tokens
         self.stoi = {i:j for j, i in self.itos.items()}
+        self.is_built = False
 
     def __len__(self):
         return len(self.itos)
@@ -16,8 +17,6 @@ class Vocab:
     def build_vocab(self, train_dataset):
         frequencies = {}
         idx = len(self.special_tokens)
-
-        print("Building vocabulary using train dataset...")
 
         for i in tqdm(range(train_dataset.shape[0]*train_dataset.shape[1])):
             sentence = train_dataset.iloc[i//train_dataset.shape[1], i % train_dataset.shape[1]]
@@ -34,11 +33,21 @@ class Vocab:
             self.stoi[word] = idx
             self.itos[idx] = word
             idx += 1
-        print(self.stoi, self.itos)
+        self.is_built = True
+
         return
 
     def to_index(self, sentence):
-        pass
+        if not self.is_built:
+            raise Exception("Vocabulary not built")
+        tokenized_sentence = self.tokenizer(sentence)
+        indexed_sentence = []
+        for token in tokenized_sentence:
+            if token in self.stoi.keys():
+                indexed_sentence.append(self.stoi[token])
+            else:
+                indexed_sentence.append(self.stoi['<UNK>'])
+        return indexed_sentence
 
 
 
