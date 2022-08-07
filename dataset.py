@@ -2,7 +2,7 @@ import torch
 from torch.utils.data import Dataset
 
 
-class Train_Dataset(Dataset):
+class Dataset(Dataset):
     def __init__(self, frame, vocab, source_column, target_column):
         self.frame = frame
         self.vocab = vocab
@@ -43,16 +43,3 @@ class Train_Dataset(Dataset):
         return torch.tensor(source_indexed_item), torch.tensor(target_indexed_item)
 
 
-class Valid_Dataset(Dataset):
-    def __init__(self, frame, vocab, source_column, target_column):
-        self.frame = frame
-        self.vocab = vocab
-        self.source = self.frame[source_column]
-        self.target = self.frame[target_column]
-
-
-    def __len__(self):
-        return len(self.frame)
-
-    def __getitem__(self, index):
-        pass

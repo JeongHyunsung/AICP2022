@@ -39,7 +39,7 @@ class Vocab:
 
     def to_index(self, sentence):
         if not self.is_built:
-            raise Exception("Vocabulary not built")
+            raise Exception("error : Vocabulary not built")
         tokenized_sentence = self.tokenizer(sentence)
         indexed_sentence = []
         for token in tokenized_sentence:
