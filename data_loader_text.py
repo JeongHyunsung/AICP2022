@@ -137,3 +137,10 @@ class data_loader_text:
         self.set_train_loader(batch_size, num_workers, shuffle, pin_memory)
         self.set_valid_loader(batch_size, num_workers, shuffle, pin_memory)
 
+    def do_all(self, dataset_loc, batch_size, num_workers=0, shuffle=True, pin_memory=True, train_ratio=0.6, valid_ratio=0.2):
+        self.get_json(dataset_loc)
+        self.split_dataframe(train_ratio, valid_ratio)
+        self.make_vocab()
+        self.make_dataset()
+        self.set_loader(batch_size, num_workers, shuffle, pin_memory)
+        return self.train_loader, self.valid_loader

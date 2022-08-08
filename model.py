@@ -29,7 +29,12 @@ class Text_Encoder(nn.Module):
         self.tanh = nn.Tanh()
         self.linear = nn.Linear(self.D*self.hidden_dim*self.num_layers, self.output_dim)
 
-    def forward(self, x, h, c):  # input : (batch_size, seq_length), number range : 0~(max_words-1)
+    def forward(self, x):  # input : (batch_size, seq_length), number range : 0~(max_words-1)
+
+        h = torch.zeros((self.num_layers * self.D, self.batch_size, self.hidden_dim))
+        c = torch.zeros((self.num_layers * self.D, self.batch_size, self.hidden_dim))
+        torch.nn.init.xavier_normal_(h)
+        torch.nn.init.xavier_normal_(c)
 
         out = self.embedding(x)  # (batch_size, seq_length, input_dim)
 
@@ -41,9 +46,7 @@ class Text_Encoder(nn.Module):
         h = self.tanh(h)
         return h
 
-    def init_hidden(self):
-        h = torch.zeros((self.num_layers * self.D, self.batch_size, self.hidden_dim))
-        c = torch.zeros((self.num_layers * self.D, self.batch_size, self.hidden_dim))
-        torch.nn.init.xavier_normal_(h)
-        torch.nn.init.xavier_normal_(c)
-        return h, c
+
+class Model(nn.Module):
+    pass
+
