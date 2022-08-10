@@ -4,7 +4,6 @@ from torch.utils.tensorboard import SummaryWriter
 
 from Dataset.data_loader_text import data_loader_text
 from Dataset.tokenizer import tokenizer_spacy
-from model import Model
 from loss import cross_entropy
 from optimizer import sgd
 
