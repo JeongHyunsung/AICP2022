@@ -1,8 +1,6 @@
 import torch
 import torch.nn as nn
 
-from Model.Cell.BiLSTM import BiLSTM
-from Model.Embedding.onehot import index2input
 from Model.Layer.encoderlayer_text import encoderlayer_text
 from Model.Layer.encoderlayer_history import encoderlayer_history
 
