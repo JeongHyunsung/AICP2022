@@ -9,8 +9,8 @@ class index2input(nn.Module):
         self.max_words = max_words
         self.linear = nn.Linear(max_words, input_dim)
 
-    def forward(self, x):
-        x = F.one_hot(x, self.max_words)
+    def forward(self, x):  # (batch_size, seq_len)
+        x = F.one_hot(x, self.max_words)  # (batch_size, seq_len, vocab_size)
         x = x.type(torch.float)
-        x = self.linear(x)
+        x = self.linear(x)  # (batch_size, seq_len, input_dim)
         return x
