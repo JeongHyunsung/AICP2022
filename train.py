@@ -2,8 +2,8 @@ import torch
 from datetime import datetime
 from torch.utils.tensorboard import SummaryWriter
 
-from Dataset.data_loader_text import data_loader_text
-from Dataset.tokenizer import tokenizer_spacy
+from Dataset.preprocess import preprocess
+
 from loss import cross_entropy
 from optimizer import sgd
 
@@ -46,16 +46,14 @@ if __name__ == "__main__":
 
     # preprocessing
     batch_size = 5
-    tokenizer = tokenizer_spacy()
-    special_tokens = {0: '<PAD>', 1: '<SOS>', 2: '<EOS>', 3: '<UNK>'}
+    train_loader, valid_loader, eval_loader, vocab_size = preprocess(batch_size)
 
-    Loader = data_loader_text(tokenizer.tokenize, special_tokens)
-    train_loader, valid_loader = Loader.do_all("MovieChat_small//data", batch_size)
+    print(next(iter(train_loader)), vocab_size)
 
     # model, loss function, optimizer, summary writer, epoch setting
     learning_rate, momentum = 0.001, 0.9
     Epochs = 10
-    model = Model(batch_size, Loader.vocab_size)
+    model = Model(batch_size, vocab_size)
     loss_fn = cross_entropy()
     optimizer = sgd(model.parameters(), learning_rate, momentum)
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')

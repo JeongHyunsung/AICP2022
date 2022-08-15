@@ -12,20 +12,21 @@ from Dataset.utils import MyCollate
 class data_loader_text:
     def __init__(self, tokenizer, special_tokens):
         self.special_tokens = special_tokens  # dictionary of special tokens <eos>, <sos>, <unk>, <pad>...
-        self.tokenizer = tokenizer  # tokenizer function split sentence to small tokens, (한국어 이용한다면 tokenizer 교체)
-        self.dataset_frame = None  # dataset
+        self.tokenizer = tokenizer  # tokenizer function split sentence to small tokens
+        self.dataset_frame = None  # dataframe which include all data
         self.train_frame = None
         self.valid_frame = None
         self.eval_frame = None
-        self.train_dataset = None
-        self.valid_dataset = None
-        self.eval_dataset = None
+        self.train_dataset = None  # train dataset
+        self.valid_dataset = None  # valid dataset
+        self.eval_dataset = None  # eval dataset
         self.vocab = None  # Vocab class
-        self.vocab_size= None
-        self.train_loader = None
-        self.valid_loader = None
+        self.vocab_size = None  # number of total tokens in vocabulary
+        self.train_loader = None  # dataloader using train dataset
+        self.valid_loader = None  # dataloader using valid dataset
+        self.eval_loader = None  # dataloader using eval dataset
 
-    def get_json(self, dataset_loc):
+    def get_json(self, dataset_loc):  # load all json files into dictionary, extract text data into dataframe
         filename_list = os.listdir(dataset_loc)
         file_list = [file for file in filename_list if file.endswith(".json")]
 
@@ -40,6 +41,8 @@ class data_loader_text:
         for dataset in datasets:
             for data in dataset:
                 data_1darr = []
+                if data["text_next_exist"] == 0:
+                    continue
                 history_num = len(data["text_history"])
                 for i in range(history_num):
                     data_1darr.append(data["text_history"][history_num - 1 - i])
@@ -53,7 +56,7 @@ class data_loader_text:
         self.dataset_frame = dataset_frame
         return
 
-    def split_dataframe(self, train_ratio=0.6, valid_ratio=0.2):
+    def split_dataframe(self, train_ratio=0.6, valid_ratio=0.2):  # split dataframe randomly
         print("\nSplit dataframe into train/valid/eval ...")
         if self.dataset_frame is None:
             raise Exception("error : Dataset not found")
@@ -72,7 +75,7 @@ class data_loader_text:
         self.eval_frame = self.eval_frame.reset_index(drop=True)
         return
 
-    def make_vocab(self):
+    def make_vocab(self):  # using train data, make vocabulary correspond to tokenizer
         print("\nMake vocabulary from train dataframe ...")
         if self.train_frame is None:
             raise Exception("error : Train dataset not found")
@@ -133,9 +136,23 @@ class data_loader_text:
         self.valid_loader = loader
         return
 
+    def set_eval_loader(self, batch_size, num_workers=0, shuffle=True, pin_memory=True):
+        print("\nSet eval data loader ...")
+        pad_idx = self.vocab.stoi["<PAD>"]
+        loader = DataLoader(self.eval_dataset,
+                            batch_size=batch_size,
+                            num_workers=num_workers,
+                            shuffle=shuffle,
+                            pin_memory=pin_memory,
+                            collate_fn=MyCollate(pad_idx=pad_idx))
+        self.eval_loader = loader
+        return
+
+
     def set_loader(self, batch_size, num_workers=0, shuffle=True, pin_memory=True):
         self.set_train_loader(batch_size, num_workers, shuffle, pin_memory)
         self.set_valid_loader(batch_size, num_workers, shuffle, pin_memory)
+        self.set_eval_loader(batch_size, num_workers, shuffle, pin_memory)
 
     def do_all(self, dataset_loc, batch_size, num_workers=0, shuffle=True, pin_memory=True, train_ratio=0.6, valid_ratio=0.2):
         self.get_json(dataset_loc)
@@ -143,4 +160,4 @@ class data_loader_text:
         self.make_vocab()
         self.make_dataset()
         self.set_loader(batch_size, num_workers, shuffle, pin_memory)
-        return self.train_loader, self.valid_loader
+        return

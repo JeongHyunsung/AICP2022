@@ -1,8 +1,6 @@
 import torch
 import torch.nn as nn
 
-from Model.Cell.BiLSTM import BiLSTM
-from Model.Embedding.onehot import index2input
 from Model.Layer.encoderlayer_text import encoderlayer_text
 from Model.Layer.encoderlayer_history import encoderlayer_history
 
@@ -31,8 +29,6 @@ class encoder(nn.Module):
         text_out_list = []  # list len : history_len-1, (batch_size, 1, 2*hidden_dim)
         text_out_query = self.encoderlayer_text(x[:, x.shape[1]-1, :])  # (batch_size, 1, 2*hidden_dim)
         for hst_idx in range(x.shape[1]):
-            print("hst_idx")
-            print(x[:,hst_idx,:])
             text_out_list.append(self.encoderlayer_text(x[:, hst_idx, :]))
 
         text_out = torch.cat(text_out_list[:x.shape[1]-1], dim=1)  # (batch_size, history_len-1, 2*hidden_dim)

@@ -29,3 +29,4 @@ class BiLSTM(nn.Module):
         h = torch.transpose(h, 0, 1)
         h = torch.reshape(h, (self.batch_size, 1, -1))  # (batch_size, 1, D*num_layers*hidden_dim)
         return h
+

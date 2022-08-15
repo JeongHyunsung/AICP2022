@@ -1,4 +1,5 @@
 import spacy
+import nltk
 
 
 class tokenizer_spacy:
@@ -7,3 +8,8 @@ class tokenizer_spacy:
 
     def tokenize(self, sentence):
         return [token.text for token in self.nlp(sentence)]
+
+
+class tokenizer_nltk:
+    def tokenize(self, sentence):
+        return nltk.word_tokenize(sentence)
