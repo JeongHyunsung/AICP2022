@@ -14,6 +14,7 @@ class data_loader_text:
         self.special_tokens = special_tokens  # dictionary of special tokens <eos>, <sos>, <unk>, <pad>...
         self.tokenizer = tokenizer  # tokenizer function split sentence to small tokens
         self.dataset_frame = None  # dataframe which include all data
+        self.random_data_idx = None
         self.train_frame = None
         self.valid_frame = None
         self.eval_frame = None
@@ -65,6 +66,7 @@ class data_loader_text:
         eval_split_idx = int(dataset_length*(train_ratio+valid_ratio))
         data_idx = list(range(dataset_length))
         np.random.shuffle(data_idx)
+        self.random_data_idx = data_idx
 
         train_idx, valid_idx, eval_idx = data_idx[:valid_split_idx], data_idx[valid_split_idx:eval_split_idx], data_idx[eval_split_idx:]
         self.train_frame = self.dataset_frame.iloc[train_idx]
