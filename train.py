@@ -3,6 +3,7 @@ from datetime import datetime
 from torch.utils.tensorboard import SummaryWriter
 
 from Dataset.preprocess import preprocess
+from parameters import return_args
 
 from loss import cross_entropy
 from optimizer import sgd
@@ -44,15 +45,15 @@ def valid_one_epoch(validation_loader, model_, loss_fn_):
 
 if __name__ == "__main__":
 
+    args = return_args()
     # preprocessing
-    batch_size = 5
-    train_loader, valid_loader, eval_loader, vocab_size = preprocess(batch_size)
-
-    print(next(iter(train_loader)), vocab_size)
+    batch_size = args.batch_size
+    train_loader, valid_loader, eval_loader, vocab_size = preprocess(args.tokenizer_name, args.dataset_loc, batch_size, args.train_ratio, args.valid_ratio)
 
     # model, loss function, optimizer, summary writer, epoch setting
-    learning_rate, momentum = 0.001, 0.9
-    Epochs = 10
+    learning_rate, momentum = args.learning_rate, args.momentum
+    Epochs = args.epoch
+
     model = Model(batch_size, vocab_size)
     loss_fn = cross_entropy()
     optimizer = sgd(model.parameters(), learning_rate, momentum)
