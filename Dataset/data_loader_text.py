@@ -77,11 +77,11 @@ class data_loader_text:
         self.eval_frame = self.eval_frame.reset_index(drop=True)
         return
 
-    def make_vocab(self):  # using train data, make vocabulary correspond to tokenizer
+    def make_vocab(self, vocab_freq_threshold, vocab_max_size):  # using train data, make vocabulary correspond to tokenizer
         print("\nMake vocabulary from train dataframe ...")
         if self.train_frame is None:
             raise Exception("error : Train dataset not found")
-        vocab = Vocab(1, 50000, self.tokenizer, self.special_tokens)
+        vocab = Vocab(vocab_freq_threshold, vocab_max_size, self.tokenizer, self.special_tokens)
         vocab.build_vocab(self.train_frame)
 
         self.vocab = vocab
@@ -150,16 +150,15 @@ class data_loader_text:
         self.eval_loader = loader
         return
 
-
     def set_loader(self, batch_size, num_workers=0, shuffle=True, pin_memory=True):
         self.set_train_loader(batch_size, num_workers, shuffle, pin_memory)
         self.set_valid_loader(batch_size, num_workers, shuffle, pin_memory)
         self.set_eval_loader(batch_size, num_workers, shuffle, pin_memory)
 
-    def do_all(self, dataset_loc, batch_size, num_workers=0, shuffle=True, pin_memory=True, train_ratio=0.6, valid_ratio=0.2):
+    def do_all(self, vocab_freq_threshold, vocab_max_size, dataset_loc, batch_size, num_workers=0, shuffle=True, pin_memory=True, train_ratio=0.6, valid_ratio=0.2):
         self.get_json(dataset_loc)
         self.split_dataframe(train_ratio, valid_ratio)
-        self.make_vocab()
+        self.make_vocab(vocab_freq_threshold, vocab_max_size)
         self.make_dataset()
         self.set_loader(batch_size, num_workers, shuffle, pin_memory)
         return

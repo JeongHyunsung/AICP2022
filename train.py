@@ -48,11 +48,19 @@ if __name__ == "__main__":
     args = return_args()
     # preprocessing
     batch_size = args.batch_size
-    train_loader, valid_loader, eval_loader, vocab_size = preprocess(args.tokenizer_name, args.dataset_loc, batch_size, args.train_ratio, args.valid_ratio)
+    train_loader, valid_loader, eval_loader, vocab_size = preprocess(args.tokenizer_name,
+                                                                     args.dataset_loc,
+                                                                     batch_size,
+                                                                     args.vocab_freq_threshold,
+                                                                     args.vocab_max_size,
+                                                                     args.train_ratio,
+                                                                     args.valid_ratio)
 
     # model, loss function, optimizer, summary writer, epoch setting
     learning_rate, momentum = args.learning_rate, args.momentum
     Epochs = args.epoch
+
+    print(vocab_size)
 
     model = Model(batch_size, vocab_size)
     loss_fn = cross_entropy()

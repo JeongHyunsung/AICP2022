@@ -7,6 +7,8 @@ def return_args():
     parser.add_argument("--batch_size", type=int, default=10)
     parser.add_argument("--dataset_loc", type=str, default="MovieChat//Data")
     parser.add_argument("--tokenizer_name", type=str, default="nltk")
+    parser.add_argument("--vocab_freq_threshold", type=int, default=0)
+    parser.add_argument("--vocab_max_size", type=int, default=50000)
     parser.add_argument("--train_ratio", type=float, default=0.6)
     parser.add_argument("--valid_ratio", type=float, default=0.2)
 

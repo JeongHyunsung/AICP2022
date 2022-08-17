@@ -4,8 +4,8 @@ from Dataset.data_loader_text import data_loader_text
 from Dataset.tokenizer import tokenizer_spacy, tokenizer_nltk
 
 
-def preprocess(tokenizer_name, dataset_loc, batch_size, train_ratio=0.6, valid_ratio=0.2, num_workers=0, shuffle=True, pin_memory=True):
-    dataset_info = [tokenizer_name, dataset_loc, batch_size, train_ratio, valid_ratio, num_workers, shuffle, pin_memory]
+def preprocess(tokenizer_name, dataset_loc, batch_size, vocab_freq_threshold=1, vocab_max_size=50000, train_ratio=0.6, valid_ratio=0.2, num_workers=0, shuffle=True, pin_memory=True):
+    dataset_info = [tokenizer_name, dataset_loc, batch_size, vocab_freq_threshold, vocab_max_size, train_ratio, valid_ratio, num_workers, shuffle, pin_memory]
     file = open("Dataset//cache//cache_info", "rb")
     dataset_info_cache = pickle.load(file)
     info_changed = (dataset_info_cache != dataset_info)
@@ -19,7 +19,7 @@ def preprocess(tokenizer_name, dataset_loc, batch_size, train_ratio=0.6, valid_r
 
         special_tokens = {0: '<PAD>', 1: '<SOS>', 2: '<EOS>', 3: '<UNK>'}
         loader = data_loader_text(tokenizer.tokenize, special_tokens)
-        loader.do_all(dataset_loc, batch_size, num_workers, shuffle, pin_memory, train_ratio, valid_ratio)
+        loader.do_all(vocab_freq_threshold, vocab_max_size, dataset_loc, batch_size, num_workers, shuffle, pin_memory, train_ratio, valid_ratio)
 
         file = open("Dataset//cache//cache", "wb")
         pickle.dump(loader, file)
